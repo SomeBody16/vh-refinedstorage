@@ -14,11 +14,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class RSBlocks {
     public static final RegistryObject<ImporterBlock> IMPORTER;
@@ -47,6 +43,7 @@ public final class RSBlocks {
     public static final ColorMap<ControllerBlock> CONTROLLER = new ColorMap<>(BLOCKS);
     public static final ColorMap<ControllerBlock> CREATIVE_CONTROLLER = new ColorMap<>(BLOCKS);
     public static final ColorMap<GridBlock> GRID = new ColorMap<>(BLOCKS);
+    public static final ColorMap<GridBlock> JEWEL_GRID = new ColorMap<>(BLOCKS);
     public static final ColorMap<GridBlock> CRAFTING_GRID = new ColorMap<>(BLOCKS);
     public static final ColorMap<GridBlock> PATTERN_GRID = new ColorMap<>(BLOCKS);
     public static final ColorMap<GridBlock> FLUID_GRID = new ColorMap<>(BLOCKS);
@@ -83,6 +80,7 @@ public final class RSBlocks {
         }
 
         GRID.registerBlocks("grid", () -> new GridBlock(GridType.NORMAL));
+        JEWEL_GRID.registerBlocks(GridType.JEWEL.getSerializedName() + GRID_SUFFIX, () -> new GridBlock(GridType.JEWEL));
         CRAFTING_GRID.registerBlocks(GridType.CRAFTING.getSerializedName() + GRID_SUFFIX, () -> new GridBlock(GridType.CRAFTING));
         PATTERN_GRID.registerBlocks(GridType.PATTERN.getSerializedName() + GRID_SUFFIX, () -> new GridBlock(GridType.PATTERN));
         FLUID_GRID.registerBlocks(GridType.FLUID.getSerializedName() + GRID_SUFFIX, () -> new GridBlock(GridType.FLUID));

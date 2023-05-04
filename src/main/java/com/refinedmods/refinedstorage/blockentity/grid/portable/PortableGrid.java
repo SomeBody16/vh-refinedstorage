@@ -74,13 +74,13 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
     private Player player;
     private ItemStack stack;
     private final FilterItemHandler filter = (FilterItemHandler) new FilterItemHandler(filters, tabs)
-        .addListener((handler, slot, reading) -> {
-            if (!stack.hasTag()) {
-                stack.setTag(new CompoundTag());
-            }
+            .addListener((handler, slot, reading) -> {
+                if (!stack.hasTag()) {
+                    stack.setTag(new CompoundTag());
+                }
 
-            StackUtils.writeItems(handler, 0, stack.getTag());
-        });
+                StackUtils.writeItems(handler, 0, stack.getTag());
+            });
     private int sortingType;
     private int sortingDirection;
     private int searchBoxMode;
@@ -132,43 +132,45 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
 
     public void onOpen() {
         drainEnergy(RS.SERVER_CONFIG.getPortableGrid().getOpenUsage());
-    }    private final BaseItemHandler disk = new BaseItemHandler(1)
-        .addValidator(new StorageDiskItemValidator())
-        .addListener(((handler, slot, reading) -> {
-            if (player != null && !player.level.isClientSide) {
-                ItemStack diskStack = handler.getStackInSlot(slot);
+    }
 
-                if (diskStack.isEmpty()) {
-                    storage = null;
-                    cache = null;
-                } else {
-                    IStorageDisk diskInSlot = API.instance().getStorageDiskManager((ServerLevel) player.level).getByStack(getDiskInventory().getStackInSlot(0));
+    private final BaseItemHandler disk = new BaseItemHandler(1)
+            .addValidator(new StorageDiskItemValidator())
+            .addListener(((handler, slot, reading) -> {
+                if (player != null && !player.level.isClientSide) {
+                    ItemStack diskStack = handler.getStackInSlot(slot);
 
-                    if (diskInSlot != null) {
-                        StorageType type = ((IStorageDiskProvider) getDiskInventory().getStackInSlot(0).getItem()).getType();
-
-                        if (type == StorageType.ITEM) {
-                            storage = new PortableItemStorageDisk(diskInSlot, PortableGrid.this);
-                            cache = new PortableItemStorageCache(PortableGrid.this);
-                        } else if (type == StorageType.FLUID) {
-                            storage = new PortableFluidStorageDisk(diskInSlot, PortableGrid.this);
-                            cache = new PortableFluidStorageCache(PortableGrid.this);
-                        }
-
-                        storage.setSettings(null, PortableGrid.this);
-                    } else {
+                    if (diskStack.isEmpty()) {
                         storage = null;
                         cache = null;
+                    } else {
+                        IStorageDisk diskInSlot = API.instance().getStorageDiskManager((ServerLevel) player.level).getByStack(getDiskInventory().getStackInSlot(0));
+
+                        if (diskInSlot != null) {
+                            StorageType type = ((IStorageDiskProvider) getDiskInventory().getStackInSlot(0).getItem()).getType();
+
+                            if (type == StorageType.ITEM) {
+                                storage = new PortableItemStorageDisk(diskInSlot, PortableGrid.this);
+                                cache = new PortableItemStorageCache(PortableGrid.this);
+                            } else if (type == StorageType.FLUID) {
+                                storage = new PortableFluidStorageDisk(diskInSlot, PortableGrid.this);
+                                cache = new PortableFluidStorageCache(PortableGrid.this);
+                            }
+
+                            storage.setSettings(null, PortableGrid.this);
+                        } else {
+                            storage = null;
+                            cache = null;
+                        }
                     }
-                }
 
-                if (cache != null) {
-                    cache.invalidate(InvalidateCause.DISK_INVENTORY_CHANGED);
-                }
+                    if (cache != null) {
+                        cache.invalidate(InvalidateCause.DISK_INVENTORY_CHANGED);
+                    }
 
-                StackUtils.writeItems(handler, 4, stack.getTag());
-            }
-        }));
+                    StackUtils.writeItems(handler, 4, stack.getTag());
+                }
+            }));
 
     public ItemStack getStack() {
         return stack;
@@ -190,7 +192,7 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
     public void drainEnergy(int energy) {
         if (RS.SERVER_CONFIG.getPortableGrid().getUseEnergy() && ((PortableGridBlockItem) stack.getItem()).getType() != PortableGridBlockItem.Type.CREATIVE) {
             stack.getCapability(CapabilityEnergy.ENERGY, null)
-                .ifPresent(energyStorage -> energyStorage.extractEnergy(energy, false));
+                    .ifPresent(energyStorage -> energyStorage.extractEnergy(energy, false));
         }
     }
 
@@ -198,8 +200,8 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
     public int getEnergy() {
         if (RS.SERVER_CONFIG.getPortableGrid().getUseEnergy() && ((PortableGridBlockItem) stack.getItem()).getType() != PortableGridBlockItem.Type.CREATIVE) {
             return stack.getCapability(CapabilityEnergy.ENERGY, null)
-                .map(IEnergyStorage::getEnergyStored)
-                .orElse(RS.SERVER_CONFIG.getPortableGrid().getCapacity());
+                    .map(IEnergyStorage::getEnergyStored)
+                    .orElse(RS.SERVER_CONFIG.getPortableGrid().getCapacity());
         }
 
         return RS.SERVER_CONFIG.getPortableGrid().getCapacity();
@@ -268,6 +270,11 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
     }
 
     @Override
+    public String getJewelAttributeSorting() {
+        return null;
+    }
+
+    @Override
     public int getSortingDirection() {
         return sortingDirection;
     }
@@ -309,6 +316,11 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
         this.sortingType = type;
 
         BaseScreen.executeLater(GridScreen.class, grid -> grid.getView().sort());
+    }
+
+    @Override
+    public void onJewelAttributeChanged(String attr) {
+
     }
 
     @Override
@@ -448,8 +460,8 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
     @Override
     public boolean isGridActive() {
         if (RS.SERVER_CONFIG.getPortableGrid().getUseEnergy() &&
-            ((PortableGridBlockItem) stack.getItem()).getType() != PortableGridBlockItem.Type.CREATIVE &&
-            stack.getCapability(CapabilityEnergy.ENERGY).orElse(null).getEnergyStored() <= RS.SERVER_CONFIG.getPortableGrid().getOpenUsage()) {
+                ((PortableGridBlockItem) stack.getItem()).getType() != PortableGridBlockItem.Type.CREATIVE &&
+                stack.getCapability(CapabilityEnergy.ENERGY).orElse(null).getEnergyStored() <= RS.SERVER_CONFIG.getPortableGrid().getOpenUsage()) {
             return false;
         }
 
@@ -508,8 +520,6 @@ public class PortableGrid implements IGrid, IPortableGrid, IStorageDiskContainer
     public AccessType getAccessType() {
         return AccessType.INSERT_EXTRACT;
     }
-
-
 
 
 }

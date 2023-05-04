@@ -31,6 +31,7 @@ public interface IGrid {
     int SORTING_TYPE_ID = 2;
     int SORTING_TYPE_INVENTORYTWEAKS = 3;
     int SORTING_TYPE_LAST_MODIFIED = 4;
+    int SORTING_TYPE_JEWEL_ATTRIBUTE = 5;
 
     int SEARCH_BOX_MODE_NORMAL = 0;
     int SEARCH_BOX_MODE_NORMAL_AUTOSELECTED = 1;
@@ -50,38 +51,39 @@ public interface IGrid {
 
     static boolean isValidViewType(int type) {
         return type == VIEW_TYPE_NORMAL ||
-            type == VIEW_TYPE_CRAFTABLES ||
-            type == VIEW_TYPE_NON_CRAFTABLES;
+                type == VIEW_TYPE_CRAFTABLES ||
+                type == VIEW_TYPE_NON_CRAFTABLES;
     }
 
     static boolean isValidSearchBoxMode(int mode) {
         return mode == SEARCH_BOX_MODE_NORMAL ||
-            mode == SEARCH_BOX_MODE_NORMAL_AUTOSELECTED ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_AUTOSELECTED ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY_AUTOSELECTED;
+                mode == SEARCH_BOX_MODE_NORMAL_AUTOSELECTED ||
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED ||
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_AUTOSELECTED ||
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY ||
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY_AUTOSELECTED;
     }
 
     static boolean isSearchBoxModeWithAutoselection(int mode) {
         return mode == SEARCH_BOX_MODE_NORMAL_AUTOSELECTED ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_AUTOSELECTED ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY_AUTOSELECTED;
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_AUTOSELECTED ||
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY_AUTOSELECTED;
     }
 
     static boolean doesSearchBoxModeUseJEI(int mode) {
         return mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_AUTOSELECTED ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY ||
-            mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY_AUTOSELECTED;
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_AUTOSELECTED ||
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY ||
+                mode == SEARCH_BOX_MODE_JEI_SYNCHRONIZED_2WAY_AUTOSELECTED;
     }
 
     static boolean isValidSortingType(int type) {
         return type == SORTING_TYPE_QUANTITY ||
-            type == SORTING_TYPE_NAME ||
-            type == SORTING_TYPE_ID ||
-            type == SORTING_TYPE_INVENTORYTWEAKS ||
-            type == SORTING_TYPE_LAST_MODIFIED;
+                type == SORTING_TYPE_NAME ||
+                type == SORTING_TYPE_ID ||
+                type == SORTING_TYPE_INVENTORYTWEAKS ||
+                type == SORTING_TYPE_LAST_MODIFIED ||
+                type == SORTING_TYPE_JEWEL_ATTRIBUTE;
     }
 
     static boolean isValidSortingDirection(int direction) {
@@ -90,9 +92,9 @@ public interface IGrid {
 
     static boolean isValidSize(int size) {
         return size == SIZE_STRETCH ||
-            size == SIZE_SMALL ||
-            size == SIZE_MEDIUM ||
-            size == SIZE_LARGE;
+                size == SIZE_SMALL ||
+                size == SIZE_MEDIUM ||
+                size == SIZE_LARGE;
     }
 
     /**
@@ -152,6 +154,11 @@ public interface IGrid {
     int getSortingType();
 
     /**
+     * @return the jewel sorting attribute
+     */
+    String getJewelAttributeSorting();
+
+    /**
      * @return the sorting direction
      */
     int getSortingDirection();
@@ -190,6 +197,11 @@ public interface IGrid {
      * @param type the new sorting type
      */
     void onSortingTypeChanged(int type);
+
+    /**
+     * @param attr the new jewel sorting attribute
+     */
+    void onJewelAttributeChanged(String attr);
 
     /**
      * @param direction the new direction

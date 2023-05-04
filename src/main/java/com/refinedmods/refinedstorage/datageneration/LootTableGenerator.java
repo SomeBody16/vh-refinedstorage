@@ -55,6 +55,7 @@ public class LootTableGenerator extends LootTableProvider {
             RSBlocks.CREATIVE_CONTROLLER.values().forEach(block -> dropSelf(block.get()));
             RSBlocks.CRAFTER.values().forEach(block -> genBlockItemLootTableWithFunction(block.get(), CrafterLootFunction.builder()));
             RSBlocks.GRID.values().forEach(block -> dropSelf(block.get()));
+            RSBlocks.JEWEL_GRID.values().forEach(block -> dropSelf(block.get()));
             RSBlocks.CRAFTING_GRID.values().forEach(block -> dropSelf(block.get()));
             RSBlocks.FLUID_GRID.values().forEach(block -> dropSelf(block.get()));
             RSBlocks.PATTERN_GRID.values().forEach(block -> dropSelf(block.get()));
@@ -76,11 +77,11 @@ public class LootTableGenerator extends LootTableProvider {
 
         private void genBlockItemLootTableWithFunction(Block block, LootItemFunction.Builder builder) {
             add(block, LootTable.lootTable().withPool(
-                LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
-                    .add(LootItem.lootTableItem(block)
-                        .apply(builder))
-                    .when(ExplosionCondition.survivesExplosion())));
+                    LootPool.lootPool()
+                            .setRolls(ConstantValue.exactly(1))
+                            .add(LootItem.lootTableItem(block)
+                                    .apply(builder))
+                            .when(ExplosionCondition.survivesExplosion())));
         }
     }
 }

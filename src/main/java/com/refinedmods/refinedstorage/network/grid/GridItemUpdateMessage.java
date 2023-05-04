@@ -67,7 +67,7 @@ public class GridItemUpdateMessage {
 
     public static void handle(GridItemUpdateMessage message, Supplier<NetworkEvent.Context> ctx) {
         BaseScreen.executeLater(GridScreen.class, grid -> {
-            grid.setView(new GridViewImpl(grid, GridScreen.getDefaultSorter(), GridScreen.getSorters()));
+            grid.setView(new GridViewImpl(grid, GridScreen.getDefaultSorter(), GridScreen.getSorters(grid.getGrid())));
             grid.getView().setCanCraft(message.canCraft);
             grid.getView().setStacks(message.stacks);
             grid.getView().sort();

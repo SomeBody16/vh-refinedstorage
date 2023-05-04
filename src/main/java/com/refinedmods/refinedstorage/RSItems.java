@@ -69,6 +69,7 @@ public final class RSItems {
     public static final ColorMap<BlockItem> CONTROLLER = new ColorMap<>(ITEMS, LATE_REGISTRATION);
     public static final ColorMap<BlockItem> CREATIVE_CONTROLLER = new ColorMap<>(ITEMS, LATE_REGISTRATION);
     public static final ColorMap<BlockItem> GRID = new ColorMap<>(ITEMS, LATE_REGISTRATION);
+    public static final ColorMap<BlockItem> JEWEL_GRID = new ColorMap<>(ITEMS, LATE_REGISTRATION);
     public static final ColorMap<BlockItem> CRAFTING_GRID = new ColorMap<>(ITEMS, LATE_REGISTRATION);
     public static final ColorMap<BlockItem> PATTERN_GRID = new ColorMap<>(ITEMS, LATE_REGISTRATION);
     public static final ColorMap<BlockItem> FLUID_GRID = new ColorMap<>(ITEMS, LATE_REGISTRATION);
@@ -146,20 +147,20 @@ public final class RSItems {
         registerBlockItemFor(RSBlocks.DESTRUCTOR);
 
         CONTROLLER.put(ColorMap.DEFAULT_COLOR, ITEMS.register(
-            RSBlocks.CONTROLLER.get(ColorMap.DEFAULT_COLOR).getId().getPath(),
-            () -> new ControllerBlockItem(
-                RSBlocks.CONTROLLER.get(ColorMap.DEFAULT_COLOR).get(),
-                ColorMap.DEFAULT_COLOR,
-                BlockUtils.getBlockTranslation(RSBlocks.CONTROLLER.get(ColorMap.DEFAULT_COLOR).get())
-            )
+                RSBlocks.CONTROLLER.get(ColorMap.DEFAULT_COLOR).getId().getPath(),
+                () -> new ControllerBlockItem(
+                        RSBlocks.CONTROLLER.get(ColorMap.DEFAULT_COLOR).get(),
+                        ColorMap.DEFAULT_COLOR,
+                        BlockUtils.getBlockTranslation(RSBlocks.CONTROLLER.get(ColorMap.DEFAULT_COLOR).get())
+                )
         ));
         CREATIVE_CONTROLLER.put(ColorMap.DEFAULT_COLOR, ITEMS.register(
-            RSBlocks.CREATIVE_CONTROLLER.get(ColorMap.DEFAULT_COLOR).getId().getPath(),
-            () -> new ControllerBlockItem(
-                RSBlocks.CREATIVE_CONTROLLER.get(ColorMap.DEFAULT_COLOR).get(),
-                ColorMap.DEFAULT_COLOR,
-                BlockUtils.getBlockTranslation(RSBlocks.CREATIVE_CONTROLLER.get(ColorMap.DEFAULT_COLOR).get())
-            )
+                RSBlocks.CREATIVE_CONTROLLER.get(ColorMap.DEFAULT_COLOR).getId().getPath(),
+                () -> new ControllerBlockItem(
+                        RSBlocks.CREATIVE_CONTROLLER.get(ColorMap.DEFAULT_COLOR).get(),
+                        ColorMap.DEFAULT_COLOR,
+                        BlockUtils.getBlockTranslation(RSBlocks.CREATIVE_CONTROLLER.get(ColorMap.DEFAULT_COLOR).get())
+                )
         ));
 
         COLORED_ITEM_TAGS.put(ItemTags.create(new ResourceLocation(RS.ID, CONTROLLER.get(ColorMap.DEFAULT_COLOR).getId().getPath())), CONTROLLER);
@@ -179,6 +180,7 @@ public final class RSItems {
         });
 
         GRID.registerItemsFromBlocks(RSBlocks.GRID);
+        JEWEL_GRID.registerItemsFromBlocks(RSBlocks.JEWEL_GRID);
         CRAFTING_GRID.registerItemsFromBlocks(RSBlocks.CRAFTING_GRID);
         PATTERN_GRID.registerItemsFromBlocks(RSBlocks.PATTERN_GRID);
         FLUID_GRID.registerItemsFromBlocks(RSBlocks.FLUID_GRID);

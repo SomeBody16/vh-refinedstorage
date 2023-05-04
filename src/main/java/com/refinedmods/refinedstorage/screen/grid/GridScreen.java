@@ -10,11 +10,18 @@ import com.refinedmods.refinedstorage.api.network.grid.IGrid;
 import com.refinedmods.refinedstorage.api.network.grid.handler.IItemGridHandler;
 import com.refinedmods.refinedstorage.apiimpl.network.node.GridNetworkNode;
 import com.refinedmods.refinedstorage.apiimpl.render.ElementDrawers;
+import com.refinedmods.refinedstorage.blockentity.NetworkNodeBlockEntity;
+import com.refinedmods.refinedstorage.blockentity.config.IType;
+import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationManager;
+import com.refinedmods.refinedstorage.blockentity.grid.GridBlockEntity;
+import com.refinedmods.refinedstorage.blockentity.grid.portable.IPortableGrid;
+import com.refinedmods.refinedstorage.blockentity.grid.portable.PortableGridBlockEntity;
 import com.refinedmods.refinedstorage.container.GridContainerMenu;
 import com.refinedmods.refinedstorage.network.grid.*;
 import com.refinedmods.refinedstorage.screen.BaseScreen;
 import com.refinedmods.refinedstorage.screen.IScreenInfoProvider;
 import com.refinedmods.refinedstorage.screen.grid.sorting.*;
+import com.refinedmods.refinedstorage.screen.grid.sorting.jewel.JewelAttributeGridSorter;
 import com.refinedmods.refinedstorage.screen.grid.stack.IGridStack;
 import com.refinedmods.refinedstorage.screen.grid.stack.ItemGridStack;
 import com.refinedmods.refinedstorage.screen.grid.view.GridViewImpl;
@@ -24,12 +31,6 @@ import com.refinedmods.refinedstorage.screen.widget.ScrollbarWidget;
 import com.refinedmods.refinedstorage.screen.widget.SearchWidget;
 import com.refinedmods.refinedstorage.screen.widget.TabListWidget;
 import com.refinedmods.refinedstorage.screen.widget.sidebutton.*;
-import com.refinedmods.refinedstorage.blockentity.NetworkNodeBlockEntity;
-import com.refinedmods.refinedstorage.blockentity.config.IType;
-import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationManager;
-import com.refinedmods.refinedstorage.blockentity.grid.GridBlockEntity;
-import com.refinedmods.refinedstorage.blockentity.grid.portable.IPortableGrid;
-import com.refinedmods.refinedstorage.blockentity.grid.portable.PortableGridBlockEntity;
 import com.refinedmods.refinedstorage.util.RenderUtils;
 import com.refinedmods.refinedstorage.util.TimeUtils;
 import net.minecraft.ChatFormatting;
@@ -41,6 +42,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import yalter.mousetweaks.api.MouseTweaksDisableWheelTweak;
 
@@ -71,7 +73,7 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
         super(containerMenu, 227, 0, inventory, title);
 
         this.grid = grid;
-        this.view = new GridViewImpl(this, getDefaultSorter(), getSorters());
+        this.view = new GridViewImpl(this, getDefaultSorter(), getSorters(grid));
         this.wasConnected = this.grid.isGridActive();
         this.tabs = new TabListWidget<>(this, new ElementDrawers<>(this), grid::getTabs, grid::getTotalTabPages, grid::getTabPage, grid::getTabSelected, IGrid.TABS_PER_PAGE);
         this.tabs.addListener(new TabListWidget.ITabListListener() {
@@ -93,13 +95,14 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
         }
     }
 
-    public static List<IGridSorter> getSorters() {
+    public static List<IGridSorter> getSorters(@Nullable IGrid grid) {
         List<IGridSorter> sorters = new LinkedList<>();
         sorters.add(getDefaultSorter());
         sorters.add(new QuantityGridSorter());
         sorters.add(new IdGridSorter());
         sorters.add(new LastModifiedGridSorter());
         sorters.add(new InventoryTweaksGridSorter());
+        sorters.add(new JewelAttributeGridSorter(grid));
 
         return sorters;
     }
@@ -154,6 +157,9 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
 
         addSideButton(new GridSortingDirectionSideButton(this, grid));
         addSideButton(new GridSortingTypeSideButton(this, grid));
+        if (grid.getGridType() == GridType.JEWEL) {
+            addSideButton(new GridJewelAttributeSideButton(this, grid));
+        }
         addSideButton(new GridSearchBoxModeSideButton(this));
         addSideButton(new GridSizeSideButton(this, grid::getSize, grid::onSizeChanged));
 
@@ -181,11 +187,11 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
 
             if (!processingPattern.selected()) {
                 exactPattern = addCheckBox(
-                    processingPattern.x + processingPattern.getWidth() + 5,
-                    y + getTopHeight() + (getVisibleRows() * 18) + 60,
-                    new TranslatableComponent("misc.refinedstorage.exact"),
-                    GridBlockEntity.EXACT_PATTERN.getValue(),
-                    btn -> BlockEntitySynchronizationManager.setParameter(GridBlockEntity.EXACT_PATTERN, exactPattern.selected())
+                        processingPattern.x + processingPattern.getWidth() + 5,
+                        y + getTopHeight() + (getVisibleRows() * 18) + 60,
+                        new TranslatableComponent("misc.refinedstorage.exact"),
+                        GridBlockEntity.EXACT_PATTERN.getValue(),
+                        btn -> BlockEntitySynchronizationManager.setParameter(GridBlockEntity.EXACT_PATTERN, exactPattern.selected())
                 );
                 patternScrollbar.setEnabled(false);
             } else {
@@ -252,7 +258,7 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
     public int getYPlayerInventory() {
         int yp = getTopHeight() + (getVisibleRows() * 18);
 
-        if (grid.getGridType() == GridType.NORMAL || grid.getGridType() == GridType.FLUID) {
+        if (grid.getGridType() == GridType.NORMAL || grid.getGridType() == GridType.FLUID || grid.getGridType() == GridType.JEWEL) {
             yp += 16;
         } else if (grid.getGridType() == GridType.CRAFTING) {
             yp += 73;
@@ -476,12 +482,12 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
 
             if (!gridStack.isCraftable()) {
                 textLines.add(new TranslatableComponent("misc.refinedstorage.total", gridStack.getFormattedFullQuantity())
-                    .withStyle(detailedTextStyle));
+                        .withStyle(detailedTextStyle));
             }
 
             if (gridStack.getTrackerEntry() != null) {
                 textLines.add(new TranslatableComponent(TimeUtils.getAgo(gridStack.getTrackerEntry().getTime(), gridStack.getTrackerEntry().getName()))
-                    .withStyle(detailedTextStyle));
+                        .withStyle(detailedTextStyle));
             }
         }
 
@@ -633,9 +639,9 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_LEFT_SHIFT ||
-            keyCode == GLFW.GLFW_KEY_RIGHT_SHIFT ||
-            keyCode == GLFW.GLFW_KEY_LEFT_CONTROL ||
-            keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL) {
+                keyCode == GLFW.GLFW_KEY_RIGHT_SHIFT ||
+                keyCode == GLFW.GLFW_KEY_LEFT_CONTROL ||
+                keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL) {
             view.sort();
         }
 
@@ -702,7 +708,7 @@ public class GridScreen extends BaseScreen<GridContainerMenu> implements IScreen
 
     private boolean isMatrixSlotEmpty(int slotNumber) {
         return ((GridNetworkNode) grid).getProcessingMatrix().getStackInSlot(slotNumber).isEmpty()
-            && ((GridNetworkNode) grid).getProcessingMatrixFluids().getFluid(slotNumber).isEmpty();
+                && ((GridNetworkNode) grid).getProcessingMatrixFluids().getFluid(slotNumber).isEmpty();
     }
 
     public void updatePatternScrollbar() {

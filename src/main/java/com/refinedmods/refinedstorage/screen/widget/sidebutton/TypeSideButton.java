@@ -1,10 +1,11 @@
 package com.refinedmods.refinedstorage.screen.widget.sidebutton;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.refinedmods.refinedstorage.screen.BaseScreen;
+import com.refinedmods.refinedstorage.blockentity.ExporterBlockEntity;
 import com.refinedmods.refinedstorage.blockentity.config.IType;
 import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationManager;
 import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationParameter;
+import com.refinedmods.refinedstorage.screen.BaseScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 
@@ -29,6 +30,15 @@ public class TypeSideButton extends SideButton {
 
     @Override
     public void onPress() {
-        BlockEntitySynchronizationManager.setParameter(type, type.getValue() == IType.ITEMS ? IType.FLUIDS : IType.ITEMS);
+        var currType = type.getValue();
+        if (currType == IType.ITEMS) {
+            currType = IType.FLUIDS;
+        } else if (currType == IType.FLUIDS && type == ExporterBlockEntity.TYPE) {
+            currType = IType.VAULT_ALTAR;
+        } else {
+            currType = IType.ITEMS;
+        }
+
+        BlockEntitySynchronizationManager.setParameter(type, currType);
     }
 }

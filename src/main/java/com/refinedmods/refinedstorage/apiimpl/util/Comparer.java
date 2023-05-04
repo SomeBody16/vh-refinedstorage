@@ -25,6 +25,10 @@ public class Comparer implements IComparer {
             return false;
         }
 
+        if ((flags & COMPARE_ID) == COMPARE_ID && !left.getItem().toString().equals(right.getItem().toString())) {
+            return false;
+        }
+
         return true;
     }
 

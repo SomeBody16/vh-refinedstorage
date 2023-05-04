@@ -2,7 +2,6 @@ package com.refinedmods.refinedstorage.setup;
 
 import com.refinedmods.refinedstorage.RS;
 import com.refinedmods.refinedstorage.RSBlocks;
-import com.refinedmods.refinedstorage.RSLootFunctions;
 import com.refinedmods.refinedstorage.api.network.NetworkType;
 import com.refinedmods.refinedstorage.api.network.grid.GridType;
 import com.refinedmods.refinedstorage.api.network.node.INetworkNode;
@@ -76,6 +75,7 @@ public final class CommonSetup {
         API.instance().getNetworkNodeRegistry().add(DiskDriveNetworkNode.ID, (tag, world, pos) -> readAndReturn(tag, new DiskDriveNetworkNode(world, pos)));
         API.instance().getNetworkNodeRegistry().add(CableNetworkNode.ID, (tag, world, pos) -> readAndReturn(tag, new CableNetworkNode(world, pos)));
         API.instance().getNetworkNodeRegistry().add(GridNetworkNode.ID, (tag, world, pos) -> readAndReturn(tag, new GridNetworkNode(world, pos, GridType.NORMAL)));
+        API.instance().getNetworkNodeRegistry().add(GridNetworkNode.JEWEL_ID, (tag, world, pos) -> readAndReturn(tag, new GridNetworkNode(world, pos, GridType.JEWEL)));
         API.instance().getNetworkNodeRegistry().add(GridNetworkNode.CRAFTING_ID, (tag, world, pos) -> readAndReturn(tag, new GridNetworkNode(world, pos, GridType.CRAFTING)));
         API.instance().getNetworkNodeRegistry().add(GridNetworkNode.PATTERN_ID, (tag, world, pos) -> readAndReturn(tag, new GridNetworkNode(world, pos, GridType.PATTERN)));
         API.instance().getNetworkNodeRegistry().add(GridNetworkNode.FLUID_ID, (tag, world, pos) -> readAndReturn(tag, new GridNetworkNode(world, pos, GridType.FLUID)));
@@ -164,6 +164,7 @@ public final class CommonSetup {
         e.getRegistry().register(BlockEntityType.Builder.of(CableBlockEntity::new, RSBlocks.CABLE.get()).build(null).setRegistryName(RS.ID, "cable"));
         e.getRegistry().register(registerSynchronizationParameters(BlockEntityType.Builder.of(DiskDriveBlockEntity::new, RSBlocks.DISK_DRIVE.get()).build(null).setRegistryName(RS.ID, "disk_drive")));
         e.getRegistry().register(registerSynchronizationParameters(BlockEntityType.Builder.of((pos, state) -> new GridBlockEntity(GridType.NORMAL, pos, state), RSBlocks.GRID.getBlocks()).build(null).setRegistryName(RS.ID, "grid")));
+        e.getRegistry().register(registerSynchronizationParameters(BlockEntityType.Builder.of((pos, state) -> new GridBlockEntity(GridType.JEWEL, pos, state), RSBlocks.JEWEL_GRID.getBlocks()).build(null).setRegistryName(RS.ID, "jewel_grid")));
         e.getRegistry().register(registerSynchronizationParameters(BlockEntityType.Builder.of((pos, state) -> new GridBlockEntity(GridType.CRAFTING, pos, state), RSBlocks.CRAFTING_GRID.getBlocks()).build(null).setRegistryName(RS.ID, "crafting_grid")));
         e.getRegistry().register(registerSynchronizationParameters(BlockEntityType.Builder.of((pos, state) -> new GridBlockEntity(GridType.PATTERN, pos, state), RSBlocks.PATTERN_GRID.getBlocks()).build(null).setRegistryName(RS.ID, "pattern_grid")));
         e.getRegistry().register(registerSynchronizationParameters(BlockEntityType.Builder.of((pos, state) -> new GridBlockEntity(GridType.FLUID, pos, state), RSBlocks.FLUID_GRID.getBlocks()).build(null).setRegistryName(RS.ID, "fluid_grid")));

@@ -27,6 +27,7 @@ public class BlockEntityTagGenerator extends TagsProvider<BlockEntityType<?>> {
                 RSBlockEntities.EXPORTER,
                 RSBlockEntities.EXTERNAL_STORAGE,
                 RSBlockEntities.GRID,
+                RSBlockEntities.JEWEL_GRID,
                 RSBlockEntities.CRAFTING_GRID,
                 RSBlockEntities.PATTERN_GRID,
                 RSBlockEntities.FLUID_GRID,

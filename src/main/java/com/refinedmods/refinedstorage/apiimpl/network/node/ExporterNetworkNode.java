@@ -15,11 +15,16 @@ import com.refinedmods.refinedstorage.inventory.item.UpgradeItemHandler;
 import com.refinedmods.refinedstorage.inventory.listener.NetworkNodeFluidInventoryListener;
 import com.refinedmods.refinedstorage.inventory.listener.NetworkNodeInventoryListener;
 import com.refinedmods.refinedstorage.item.UpgradeItem;
-import com.refinedmods.refinedstorage.util.StackUtils;
 import com.refinedmods.refinedstorage.util.LevelUtils;
+import com.refinedmods.refinedstorage.util.StackUtils;
+import iskallia.vault.block.entity.VaultAltarTileEntity;
+import iskallia.vault.init.ModItems;
+import iskallia.vault.world.data.PlayerVaultAltarData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -28,6 +33,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
+
+import java.util.HashMap;
 
 public class ExporterNetworkNode extends NetworkNode implements IComparable, IType, ICoverable {
     public static final ResourceLocation ID = new ResourceLocation(RS.ID, "exporter");
@@ -39,35 +46,36 @@ public class ExporterNetworkNode extends NetworkNode implements IComparable, ITy
     private final BaseItemHandler itemFilters = new BaseItemHandler(9).addListener(new NetworkNodeInventoryListener(this));
     private final FluidInventory fluidFilters = new FluidInventory(9).addListener(new NetworkNodeFluidInventoryListener(this));
     private final CoverManager coverManager;
-    private int compare = IComparer.COMPARE_NBT;    private final UpgradeItemHandler upgrades = (UpgradeItemHandler) new UpgradeItemHandler(4, UpgradeItem.Type.SPEED, UpgradeItem.Type.CRAFTING, UpgradeItem.Type.STACK, UpgradeItem.Type.REGULATOR)
-        .addListener(new NetworkNodeInventoryListener(this))
-        .addListener((handler, slot, reading) -> {
-            if (!reading && !getUpgrades().hasUpgrade(UpgradeItem.Type.REGULATOR)) {
-                boolean changed = false;
+    private int compare = IComparer.COMPARE_NBT;
+    private final UpgradeItemHandler upgrades = (UpgradeItemHandler) new UpgradeItemHandler(4, UpgradeItem.Type.SPEED, UpgradeItem.Type.CRAFTING, UpgradeItem.Type.STACK, UpgradeItem.Type.REGULATOR)
+            .addListener(new NetworkNodeInventoryListener(this))
+            .addListener((handler, slot, reading) -> {
+                if (!reading && !getUpgrades().hasUpgrade(UpgradeItem.Type.REGULATOR)) {
+                    boolean changed = false;
 
-                for (int i = 0; i < itemFilters.getSlots(); ++i) {
-                    ItemStack filteredItem = itemFilters.getStackInSlot(i);
+                    for (int i = 0; i < itemFilters.getSlots(); ++i) {
+                        ItemStack filteredItem = itemFilters.getStackInSlot(i);
 
-                    if (filteredItem.getCount() > 1) {
-                        filteredItem.setCount(1);
-                        changed = true;
+                        if (filteredItem.getCount() > 1) {
+                            filteredItem.setCount(1);
+                            changed = true;
+                        }
+                    }
+
+                    for (int i = 0; i < fluidFilters.getSlots(); ++i) {
+                        FluidStack filteredFluid = fluidFilters.getFluid(i);
+
+                        if (!filteredFluid.isEmpty() && filteredFluid.getAmount() != FluidAttributes.BUCKET_VOLUME) {
+                            filteredFluid.setAmount(FluidAttributes.BUCKET_VOLUME);
+                            changed = true;
+                        }
+                    }
+
+                    if (changed) {
+                        markDirty();
                     }
                 }
-
-                for (int i = 0; i < fluidFilters.getSlots(); ++i) {
-                    FluidStack filteredFluid = fluidFilters.getFluid(i);
-
-                    if (!filteredFluid.isEmpty() && filteredFluid.getAmount() != FluidAttributes.BUCKET_VOLUME) {
-                        filteredFluid.setAmount(FluidAttributes.BUCKET_VOLUME);
-                        changed = true;
-                    }
-                }
-
-                if (changed) {
-                    markDirty();
-                }
-            }
-        });
+            });
     private int type = IType.ITEMS;
     private int filterSlot;
 
@@ -220,9 +228,125 @@ public class ExporterNetworkNode extends NetworkNode implements IComparable, ITy
 
                     filterSlot++;
                 }
+            } else if (type == IType.VAULT_ALTAR
+                    && getFacingBlockEntity() instanceof VaultAltarTileEntity altar
+                    && level instanceof ServerLevel serverLevel
+            ) {
+                var altarState = altar.getAltarState();
+                if (altarState == VaultAltarTileEntity.AltarState.ACCEPTING) {
+                    vaultAltarRecipeTick(altar, serverLevel);
+                }
+                if (altarState == VaultAltarTileEntity.AltarState.IDLE) {
+                    vaultAltarIdleTick(altar, serverLevel);
+                }
             }
         }
     }
+
+    protected void vaultAltarIdleTick(VaultAltarTileEntity altar, ServerLevel level) {
+        if (network == null) {
+            return;
+        }
+
+        var vaultRockStack = new ItemStack(ModItems.VAULT_ROCK);
+        var took = network.extractItem(
+                vaultRockStack, 1,
+                compare, Action.SIMULATE
+        );
+
+        if (took.isEmpty()) {
+            if (upgrades.hasUpgrade(UpgradeItem.Type.CRAFTING)) {
+                network.getCraftingManager().request(new SlottedCraftingRequest(this, filterSlot),
+                        vaultRockStack, 1);
+            }
+            return;
+        }
+
+        took = network.extractItem(
+                vaultRockStack, 1,
+                compare, Action.PERFORM
+        );
+        var player = (ServerPlayer) level.getPlayerByUUID(altar.getOwner());
+        altar.onAddVaultRock(player, took);
+    }
+
+    protected void vaultAltarRecipeTick(VaultAltarTileEntity altar, ServerLevel level) {
+        if (altar.getRecipe().isComplete() || network == null) {
+            return;
+        }
+
+        var altarData = PlayerVaultAltarData.get(level);
+        var recipe = altarData.getRecipe(altar.getOwner());
+        if (recipe == null) {
+            return;
+        }
+
+        int stackInteractCount = upgrades.getStackInteractCount();
+
+        requiredPool:
+        for (var required : recipe.getRequiredItems()) {
+            if (required.isComplete()) {
+                continue;
+            }
+
+            // Check if anything in network
+            var canSupplyItems = new HashMap<ItemStack, Integer>();
+            for (var item : required.getItems()) {
+                var amount = getNetworkAmount(item);
+                if (amount > 1) {
+                    canSupplyItems.put(item, amount);
+                }
+            }
+
+            // If nothing in network, try craft then skip pool
+            if (canSupplyItems.isEmpty()) {
+                if (upgrades.hasUpgrade(UpgradeItem.Type.CRAFTING)) {
+                    for (var item : required.getItems()) {
+                        var pattern = network.getCraftingManager().getPattern(item);
+                        if (pattern == null) continue;
+
+                        var amount = Math.min(
+                                required.getAmountRequired() + 1,
+                                upgrades.getStackInteractCount()
+                        );
+                        network.getCraftingManager().request(this, item, amount);
+                        break;
+                    }
+                }
+                continue requiredPool;
+            }
+
+            canSupplyItems.forEach((item, amountInNetwork) -> {
+                var extractSize = Math.min(
+                        Math.min(item.getMaxStackSize(), stackInteractCount),
+                        required.getAmountRequired()
+                );
+
+                // Leave one item in network
+                if (amountInNetwork - extractSize <= 0) {
+                    extractSize = amountInNetwork - 1;
+                }
+
+                var took = network.extractItem(item, extractSize, compare, Action.PERFORM);
+
+                var newAltarAmount = required.getCurrentAmount() + took.getCount();
+                required.setCurrentAmount(newAltarAmount);
+
+                altar.sendUpdates();
+                PlayerVaultAltarData.get().setDirty();
+            });
+        }
+    }
+
+    public int getNetworkAmount(ItemStack toCheck) {
+        if (network == null || toCheck.isEmpty()) {
+            return 0;
+        }
+
+        ItemStack stored = network.getItemStorageCache().getList().get(toCheck, compare);
+        return stored != null ? stored.getCount() : 0;
+    }
+
 
     @Override
     public int getCompare() {
@@ -330,8 +454,6 @@ public class ExporterNetworkNode extends NetworkNode implements IComparable, ITy
     public CoverManager getCoverManager() {
         return coverManager;
     }
-
-
 
 
 }
