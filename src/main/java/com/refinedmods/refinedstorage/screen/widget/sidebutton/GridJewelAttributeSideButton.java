@@ -29,15 +29,12 @@ public class GridJewelAttributeSideButton extends SideButton {
 
     @Override
     protected void renderButtonIcon(PoseStack poseStack, int x, int y) {
+        // jewel color
         var color = JewelAttribute.of(grid.getJewelAttributeSorting()).intColor();
-        var padding = 3;
-        var size = 16;
+        GuiComponent.fill(poseStack, x + 4, y + 4, x + 4 + 8, y + 4 + 9, color);
 
-        var startX = x + padding;
-        var startY = y + padding;
-        var endX = startX + size - (padding * 2);
-        var endY = startY + size - (padding * 2);
-        GuiComponent.fill(poseStack, startX, startY, endX, endY, color);
+        // jewel icon
+        screen.blit(poseStack, x, y, 64, 48, 16, 16);
     }
 
     @Override

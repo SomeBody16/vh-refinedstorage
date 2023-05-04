@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 public interface IComparer {
     int COMPARE_NBT = 1;
     int COMPARE_QUANTITY = 2;
+    int COMPARE_ID = 3;
 
     /**
      * Compares two stacks by the given flags.
