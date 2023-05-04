@@ -24,7 +24,11 @@ public enum GridType implements StringRepresentable {
     /**
      * A fluid grid.
      */
-    FLUID(3, "fluid");
+    FLUID(3, "fluid"),
+    /**
+     * A jewel grid.
+     */
+    JEWEL(4, "jewel");
 
     private final int id;
     private final String name;

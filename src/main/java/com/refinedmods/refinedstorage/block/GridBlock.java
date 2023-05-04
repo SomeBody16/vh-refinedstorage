@@ -45,23 +45,13 @@ public class GridBlock extends ColoredNetworkBlock {
     @Override
     @SuppressWarnings("deprecation")
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        ColorMap<GridBlock> map;
-        switch (type) {
-            case FLUID:
-                map = RSBlocks.FLUID_GRID;
-                break;
-            case NORMAL:
-                map = RSBlocks.GRID;
-                break;
-            case CRAFTING:
-                map = RSBlocks.CRAFTING_GRID;
-                break;
-            case PATTERN:
-                map = RSBlocks.PATTERN_GRID;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + type);
-        }
+        ColorMap<GridBlock> map = switch (type) {
+            case FLUID -> RSBlocks.FLUID_GRID;
+            case JEWEL -> RSBlocks.JEWEL_GRID;
+            case NORMAL -> RSBlocks.GRID;
+            case CRAFTING -> RSBlocks.CRAFTING_GRID;
+            case PATTERN -> RSBlocks.PATTERN_GRID;
+        };
 
         InteractionResult result = map.changeBlockColor(state, player.getItemInHand(hand), level, pos, player);
         if (result != InteractionResult.PASS) {

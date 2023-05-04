@@ -1,0 +1,13 @@
+{
+    "parent": "refinedstorage:block/cube_north_cutout",
+    "textures": {
+        "particle": "refinedstorage:block/jewel_grid/right",
+        "east": "refinedstorage:block/jewel_grid/right",
+        "south": "refinedstorage:block/jewel_grid/back",
+        "west": "refinedstorage:block/jewel_grid/left",
+        "up": "refinedstorage:block/jewel_grid/top",
+        "down": "refinedstorage:block/bottom",
+        "north": "refinedstorage:block/jewel_grid/front",
+        "cutout": "refinedstorage:block/jewel_grid/cutouts/pink"
+    }
+}

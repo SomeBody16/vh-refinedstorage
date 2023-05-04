@@ -25,6 +25,9 @@ repositories {
     maven {
         url = "https://maven.theillusivec4.top/"
     }
+    flatDir {
+        dir 'libs'
+    }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -102,7 +105,7 @@ processResources {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.48'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.1'
 
     compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.7.1.232:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.7.1.232")
@@ -113,6 +116,8 @@ dependencies {
 
     runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.18.2-5.0.6.3")
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.18.2-5.0.6.3:api")
+
+    implementation files('libs/the_vault-1.18.2-3.8.0.2176.jar')
 }
 
 jar {

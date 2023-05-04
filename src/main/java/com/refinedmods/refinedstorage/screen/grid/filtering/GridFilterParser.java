@@ -1,5 +1,6 @@
 package com.refinedmods.refinedstorage.screen.grid.filtering;
 
+import com.refinedmods.refinedstorage.api.network.grid.GridType;
 import com.refinedmods.refinedstorage.api.network.grid.IGrid;
 import com.refinedmods.refinedstorage.api.util.IFilter;
 import com.refinedmods.refinedstorage.screen.grid.stack.IGridStack;
@@ -36,6 +37,9 @@ public final class GridFilterParser {
                 gridFilters.add(new CraftableGridFilter(false));
             } else if (grid.getViewType() == IGrid.VIEW_TYPE_CRAFTABLES) {
                 gridFilters.add(new CraftableGridFilter(true));
+            }
+            if (grid.getGridType() == GridType.JEWEL) {
+                gridFilters.add(new JewelGridFilter(grid));
             }
         }
 

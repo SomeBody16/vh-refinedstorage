@@ -124,6 +124,7 @@ public final class ClientSetup {
             RSBlocks.DETECTOR.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block.get(), RenderType.cutout()));
             RSBlocks.DISK_MANIPULATOR.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block.get(), RenderType.cutout()));
             RSBlocks.GRID.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block.get(), RenderType.cutout()));
+            RSBlocks.JEWEL_GRID.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block.get(), RenderType.cutout()));
             RSBlocks.CRAFTING_GRID.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block.get(), RenderType.cutout()));
             RSBlocks.PATTERN_GRID.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block.get(), RenderType.cutout()));
             RSBlocks.FLUID_GRID.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block.get(), RenderType.cutout()));
@@ -194,21 +195,22 @@ public final class ClientSetup {
 
     private static void registerBakedModelOverrides() {
         forEachColorApply("controller", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(
-            base,
-            true,
-            new ResourceLocation(RS.ID, "block/controller/cutouts/" + color),
-            new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_off"),
-            new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_on"))
+                base,
+                true,
+                new ResourceLocation(RS.ID, "block/controller/cutouts/" + color),
+                new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_off"),
+                new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_on"))
 
         ));
         forEachColorApply("creative_controller", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(
-            base,
-            true,
-            new ResourceLocation(RS.ID, "block/controller/cutouts/" + color),
-            new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_off"),
-            new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_on"))
+                base,
+                true,
+                new ResourceLocation(RS.ID, "block/controller/cutouts/" + color),
+                new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_off"),
+                new ResourceLocation(RS.ID, "block/controller/cutouts/nearly_on"))
         ));
         forEachColorApply("grid", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/grid/cutouts/"))));
+        forEachColorApply("jewel_grid", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/jewel_grid/cutouts/"))));
         forEachColorApply("crafting_grid", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/crafting_grid/cutouts/"))));
         forEachColorApply("pattern_grid", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/pattern_grid/cutouts/"))));
         forEachColorApply("fluid_grid", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/fluid_grid/cutouts/"))));
@@ -217,26 +219,26 @@ public final class ClientSetup {
         forEachColorApply("relay", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/relay/cutouts/"))));
         forEachColorApply("detector", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/detector/cutouts/"))));
         forEachColorApply("security_manager", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(
-            base,
-            true,
-            getMultipleColoredModels(color, "block/security_manager/cutouts/top_",
-                "block/security_manager/cutouts/front_",
-                "block/security_manager/cutouts/left_",
-                "block/security_manager/cutouts/back_",
-                "block/security_manager/cutouts/right_")
+                base,
+                true,
+                getMultipleColoredModels(color, "block/security_manager/cutouts/top_",
+                        "block/security_manager/cutouts/front_",
+                        "block/security_manager/cutouts/left_",
+                        "block/security_manager/cutouts/back_",
+                        "block/security_manager/cutouts/right_")
         )));
         forEachColorApply("wireless_transmitter", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/wireless_transmitter/cutouts/"))));
 
         BAKED_MODEL_OVERRIDE_REGISTRY.add(new ResourceLocation(RS.ID, "disk_drive"), (base, registry) -> new FullbrightBakedModel(
-            new DiskDriveBakedModel(
-                base,
-                registry.get(DISK_RESOURCE),
-                registry.get(DISK_NEAR_CAPACITY_RESOURCE),
-                registry.get(DISK_FULL_RESOURCE),
-                registry.get(DISK_DISCONNECTED_RESOURCE)
-            ),
-            false,
-            new ResourceLocation(RS.ID, "block/disks/leds")
+                new DiskDriveBakedModel(
+                        base,
+                        registry.get(DISK_RESOURCE),
+                        registry.get(DISK_NEAR_CAPACITY_RESOURCE),
+                        registry.get(DISK_FULL_RESOURCE),
+                        registry.get(DISK_DISCONNECTED_RESOURCE)
+                ),
+                false,
+                new ResourceLocation(RS.ID, "block/disks/leds")
         ));
         BAKED_MODEL_OVERRIDE_REGISTRY.add(new ResourceLocation(RS.ID, "cable"), (base, registry) -> new BakedModelCableCover(base));
         BAKED_MODEL_OVERRIDE_REGISTRY.add(new ResourceLocation(RS.ID, "exporter"), (base, registry) -> new BakedModelCableCover(base));
@@ -248,37 +250,37 @@ public final class ClientSetup {
         BAKED_MODEL_OVERRIDE_REGISTRY.add(new ResourceLocation(RS.ID, "hollow_cover"), (base, registry) -> new BakedModelCover(ItemStack.EMPTY, CoverType.HOLLOW));
 
         forEachColorApply("disk_manipulator", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(
-            new DiskManipulatorBakedModel(
-                registry.get(new ResourceLocation(RS.ID + ":block/disk_manipulator/" + color)),
-                registry.get(new ResourceLocation(RS.ID + ":block/disk_manipulator/disconnected")),
-                registry.get(DISK_RESOURCE),
-                registry.get(DISK_NEAR_CAPACITY_RESOURCE),
-                registry.get(DISK_FULL_RESOURCE),
-                registry.get(DISK_DISCONNECTED_RESOURCE)
-            ),
-            false,
-            new ResourceLocation(RS.ID, "block/disks/leds"), new ResourceLocation(RS.ID, "block/disk_manipulator/cutouts/" + color)
+                new DiskManipulatorBakedModel(
+                        registry.get(new ResourceLocation(RS.ID + ":block/disk_manipulator/" + color)),
+                        registry.get(new ResourceLocation(RS.ID + ":block/disk_manipulator/disconnected")),
+                        registry.get(DISK_RESOURCE),
+                        registry.get(DISK_NEAR_CAPACITY_RESOURCE),
+                        registry.get(DISK_FULL_RESOURCE),
+                        registry.get(DISK_DISCONNECTED_RESOURCE)
+                ),
+                false,
+                new ResourceLocation(RS.ID, "block/disks/leds"), new ResourceLocation(RS.ID, "block/disk_manipulator/cutouts/" + color)
         )));
 
         for (String portableGridName : new String[]{"portable_grid", "creative_portable_grid"}) {
             BAKED_MODEL_OVERRIDE_REGISTRY.add(new ResourceLocation(RS.ID, portableGridName), (base, registry) -> new FullbrightBakedModel(
-                new PortableGridBakedModel(
-                    registry.get(new ResourceLocation(RS.ID + ":block/portable_grid_connected")),
-                    registry.get(new ResourceLocation(RS.ID + ":block/portable_grid_disconnected")),
-                    registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk")),
-                    registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk_near_capacity")),
-                    registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk_full")),
-                    registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk_disconnected"))
-                ),
-                false,
-                new ResourceLocation(RS.ID + ":block/disks/leds")
+                    new PortableGridBakedModel(
+                            registry.get(new ResourceLocation(RS.ID + ":block/portable_grid_connected")),
+                            registry.get(new ResourceLocation(RS.ID + ":block/portable_grid_disconnected")),
+                            registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk")),
+                            registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk_near_capacity")),
+                            registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk_full")),
+                            registry.get(new ResourceLocation(RS.ID + ":block/disks/portable_grid_disk_disconnected"))
+                    ),
+                    false,
+                    new ResourceLocation(RS.ID + ":block/disks/leds")
             ));
         }
 
         forEachColorApply("crafter", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(
-            base,
-            true,
-            getMultipleColoredModels(color, "block/crafter/cutouts/side_", "block/crafter/cutouts/top_")
+                base,
+                true,
+                getMultipleColoredModels(color, "block/crafter/cutouts/side_", "block/crafter/cutouts/top_")
         )));
 
         forEachColorApply("crafter_manager", (name, color) -> BAKED_MODEL_OVERRIDE_REGISTRY.add(name, (base, registry) -> new FullbrightBakedModel(base, true, getColoredModel(color, "block/crafter_manager/cutouts/"))));

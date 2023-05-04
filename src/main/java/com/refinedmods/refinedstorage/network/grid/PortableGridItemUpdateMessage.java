@@ -1,11 +1,11 @@
 package com.refinedmods.refinedstorage.network.grid;
 
 import com.refinedmods.refinedstorage.api.util.StackListEntry;
+import com.refinedmods.refinedstorage.blockentity.grid.portable.IPortableGrid;
 import com.refinedmods.refinedstorage.screen.BaseScreen;
 import com.refinedmods.refinedstorage.screen.grid.GridScreen;
 import com.refinedmods.refinedstorage.screen.grid.stack.IGridStack;
 import com.refinedmods.refinedstorage.screen.grid.view.GridViewImpl;
-import com.refinedmods.refinedstorage.blockentity.grid.portable.IPortableGrid;
 import com.refinedmods.refinedstorage.util.StackUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
@@ -52,7 +52,7 @@ public class PortableGridItemUpdateMessage {
 
     public static void handle(PortableGridItemUpdateMessage message, Supplier<NetworkEvent.Context> ctx) {
         BaseScreen.executeLater(GridScreen.class, grid -> {
-            grid.setView(new GridViewImpl(grid, GridScreen.getDefaultSorter(), GridScreen.getSorters()));
+            grid.setView(new GridViewImpl(grid, GridScreen.getDefaultSorter(), GridScreen.getSorters(grid.getGrid())));
             grid.getView().setStacks(message.stacks);
             grid.getView().sort();
         });

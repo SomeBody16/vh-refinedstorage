@@ -47,13 +47,13 @@ public class WirelessFluidGrid implements INetworkAwareGrid {
     private final List<IGridTab> tabs = new ArrayList<>();
     private ItemStack stack;
     private final FilterItemHandler filter = (FilterItemHandler) new FilterItemHandler(filters, tabs)
-        .addListener(((handler, slot, reading) -> {
-            if (!stack.hasTag()) {
-                stack.setTag(new CompoundTag());
-            }
+            .addListener(((handler, slot, reading) -> {
+                if (!stack.hasTag()) {
+                    stack.setTag(new CompoundTag());
+                }
 
-            StackUtils.writeItems(handler, 0, stack.getTag());
-        }));
+                StackUtils.writeItems(handler, 0, stack.getTag());
+            }));
     private int sortingType;
     private int sortingDirection;
     private int searchBoxMode;
@@ -152,6 +152,11 @@ public class WirelessFluidGrid implements INetworkAwareGrid {
     }
 
     @Override
+    public String getJewelAttributeSorting() {
+        return null;
+    }
+
+    @Override
     public int getSortingDirection() {
         return sortingDirection;
     }
@@ -193,6 +198,11 @@ public class WirelessFluidGrid implements INetworkAwareGrid {
         this.sortingType = type;
 
         BaseScreen.executeLater(GridScreen.class, grid -> grid.getView().sort());
+    }
+
+    @Override
+    public void onJewelAttributeChanged(String attr) {
+
     }
 
     @Override

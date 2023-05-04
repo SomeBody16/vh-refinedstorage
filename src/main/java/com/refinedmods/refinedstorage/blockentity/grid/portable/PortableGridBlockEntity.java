@@ -47,8 +47,8 @@ import com.refinedmods.refinedstorage.item.WirelessGridItem;
 import com.refinedmods.refinedstorage.item.blockitem.PortableGridBlockItem;
 import com.refinedmods.refinedstorage.screen.BaseScreen;
 import com.refinedmods.refinedstorage.screen.grid.GridScreen;
-import com.refinedmods.refinedstorage.util.StackUtils;
 import com.refinedmods.refinedstorage.util.LevelUtils;
+import com.refinedmods.refinedstorage.util.StackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -180,19 +180,19 @@ public class PortableGridBlockEntity extends BaseBlockEntity implements IGrid, I
     }
 
     private final BaseItemHandler disk = new BaseItemHandler(1)
-        .addValidator(new StorageDiskItemValidator())
-        .addListener(new BlockEntityInventoryListener(this))
-        .addListener((handler, slot, reading) -> {
-            if (level != null && !level.isClientSide) {
-                loadStorage();
+            .addValidator(new StorageDiskItemValidator())
+            .addListener(new BlockEntityInventoryListener(this))
+            .addListener((handler, slot, reading) -> {
+                if (level != null && !level.isClientSide) {
+                    loadStorage();
 
-                if (!reading) {
-                    updateState();
+                    if (!reading) {
+                        updateState();
 
-                    LevelUtils.updateBlock(level, worldPosition); // Re-send grid type
+                        LevelUtils.updateBlock(level, worldPosition); // Re-send grid type
+                    }
                 }
-            }
-        });
+            });
 
     private void loadStorage() {
         ItemStack diskStack = getDiskInventory().getStackInSlot(0);
@@ -303,10 +303,10 @@ public class PortableGridBlockEntity extends BaseBlockEntity implements IGrid, I
 
     private EnergyStorage createEnergyStorage(int energyStored) {
         return new EnergyStorage(
-            RS.SERVER_CONFIG.getPortableGrid().getCapacity(),
-            RS.SERVER_CONFIG.getPortableGrid().getCapacity(),
-            RS.SERVER_CONFIG.getPortableGrid().getCapacity(),
-            energyStored
+                RS.SERVER_CONFIG.getPortableGrid().getCapacity(),
+                RS.SERVER_CONFIG.getPortableGrid().getCapacity(),
+                RS.SERVER_CONFIG.getPortableGrid().getCapacity(),
+                energyStored
         );
     }
 
@@ -365,6 +365,11 @@ public class PortableGridBlockEntity extends BaseBlockEntity implements IGrid, I
     @Override
     public int getSortingType() {
         return level.isClientSide ? SORTING_TYPE.getValue() : sortingType;
+    }
+
+    @Override
+    public String getJewelAttributeSorting() {
+        return null;
     }
 
     public void setSortingType(int sortingType) {
@@ -429,6 +434,11 @@ public class PortableGridBlockEntity extends BaseBlockEntity implements IGrid, I
     @Override
     public void onSortingTypeChanged(int type) {
         BlockEntitySynchronizationManager.setParameter(SORTING_TYPE, type);
+    }
+
+    @Override
+    public void onJewelAttributeChanged(String attr) {
+
     }
 
     @Override
@@ -556,8 +566,8 @@ public class PortableGridBlockEntity extends BaseBlockEntity implements IGrid, I
         }
 
         if (RS.SERVER_CONFIG.getPortableGrid().getUseEnergy() &&
-            type != PortableGridBlockItem.Type.CREATIVE &&
-            energyStorage.getEnergyStored() <= RS.SERVER_CONFIG.getPortableGrid().getOpenUsage()) {
+                type != PortableGridBlockItem.Type.CREATIVE &&
+                energyStorage.getEnergyStored() <= RS.SERVER_CONFIG.getPortableGrid().getOpenUsage()) {
             return false;
         }
 
@@ -588,8 +598,8 @@ public class PortableGridBlockEntity extends BaseBlockEntity implements IGrid, I
     @Override
     public void drainEnergy(int energy) {
         if (RS.SERVER_CONFIG.getPortableGrid().getUseEnergy() &&
-            type != PortableGridBlockItem.Type.CREATIVE &&
-            redstoneMode.isEnabled(level.hasNeighborSignal(worldPosition))) {
+                type != PortableGridBlockItem.Type.CREATIVE &&
+                redstoneMode.isEnabled(level.hasNeighborSignal(worldPosition))) {
             energyStorage.extractEnergy(energy, false);
 
             updateState();

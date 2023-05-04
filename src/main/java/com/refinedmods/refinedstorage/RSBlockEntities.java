@@ -23,6 +23,8 @@ public final class RSBlockEntities {
     public static final BlockEntityType<ExternalStorageBlockEntity> EXTERNAL_STORAGE = null;
     @ObjectHolder("grid")
     public static final BlockEntityType<GridBlockEntity> GRID = null;
+    @ObjectHolder("jewel_grid")
+    public static final BlockEntityType<GridBlockEntity> JEWEL_GRID = null;
     @ObjectHolder("crafting_grid")
     public static final BlockEntityType<GridBlockEntity> CRAFTING_GRID = null;
     @ObjectHolder("pattern_grid")

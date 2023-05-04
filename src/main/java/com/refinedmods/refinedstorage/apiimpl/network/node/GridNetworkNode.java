@@ -17,6 +17,9 @@ import com.refinedmods.refinedstorage.apiimpl.storage.cache.listener.FluidGridSt
 import com.refinedmods.refinedstorage.apiimpl.storage.cache.listener.ItemGridStorageCacheListener;
 import com.refinedmods.refinedstorage.block.GridBlock;
 import com.refinedmods.refinedstorage.block.NetworkNodeBlock;
+import com.refinedmods.refinedstorage.blockentity.config.IType;
+import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationManager;
+import com.refinedmods.refinedstorage.blockentity.grid.GridBlockEntity;
 import com.refinedmods.refinedstorage.inventory.fluid.FluidInventory;
 import com.refinedmods.refinedstorage.inventory.item.BaseItemHandler;
 import com.refinedmods.refinedstorage.inventory.item.FilterItemHandler;
@@ -24,9 +27,7 @@ import com.refinedmods.refinedstorage.inventory.item.validator.ItemValidator;
 import com.refinedmods.refinedstorage.inventory.listener.NetworkNodeFluidInventoryListener;
 import com.refinedmods.refinedstorage.inventory.listener.NetworkNodeInventoryListener;
 import com.refinedmods.refinedstorage.item.PatternItem;
-import com.refinedmods.refinedstorage.blockentity.config.IType;
-import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationManager;
-import com.refinedmods.refinedstorage.blockentity.grid.GridBlockEntity;
+import com.refinedmods.refinedstorage.the_vault.JewelAttribute;
 import com.refinedmods.refinedstorage.util.StackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -62,6 +63,7 @@ import java.util.Set;
 
 public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, IType {
     public static final ResourceLocation ID = new ResourceLocation(RS.ID, "grid");
+    public static final ResourceLocation JEWEL_ID = new ResourceLocation(RS.ID, "jewel_grid");
     public static final ResourceLocation CRAFTING_ID = new ResourceLocation(RS.ID, "crafting_grid");
     public static final ResourceLocation PATTERN_ID = new ResourceLocation(RS.ID, "pattern_grid");
     public static final ResourceLocation FLUID_ID = new ResourceLocation(RS.ID, "fluid_grid");
@@ -69,6 +71,7 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
     public static final String NBT_VIEW_TYPE = "ViewType";
     public static final String NBT_SORTING_DIRECTION = "SortingDirection";
     public static final String NBT_SORTING_TYPE = "SortingType";
+    public static final String NBT_JEWEL_ATTRIBUTE = "JewelAttribute";
     public static final String NBT_SEARCH_BOX_MODE = "SearchBoxMode";
     public static final String NBT_TAB_SELECTED = "TabSelected";
     public static final String NBT_TAB_PAGE = "TabPage";
@@ -82,12 +85,12 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
     private final AllowedTagList allowedTagList = new AllowedTagList(this::updateAllowedTags, PROCESSING_MATRIX_SIZE);
     private final ResultContainer result = new ResultContainer();
     private final BaseItemHandler processingMatrix = new BaseItemHandler(PROCESSING_MATRIX_SIZE * 2)
-        .addListener(new NetworkNodeInventoryListener(this))
-        .addListener((handler, slot, reading) -> {
-            if (!reading && slot < PROCESSING_MATRIX_SIZE) {
-                allowedTagList.clearItemTags(slot);
-            }
-        });
+            .addListener(new NetworkNodeInventoryListener(this))
+            .addListener((handler, slot, reading) -> {
+                if (!reading && slot < PROCESSING_MATRIX_SIZE) {
+                    allowedTagList.clearItemTags(slot);
+                }
+            });
     private final AbstractContainerMenu craftingContainer = new AbstractContainerMenu(MenuType.CRAFTING, 0) {
         @Override
         public boolean stillValid(Player player) {
@@ -102,12 +105,12 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
         }
     };
     private final FluidInventory processingMatrixFluids = new FluidInventory(PROCESSING_MATRIX_SIZE * 2, FluidAttributes.BUCKET_VOLUME * 64)
-        .addListener(new NetworkNodeFluidInventoryListener(this))
-        .addListener((handler, slot, reading) -> {
-            if (!reading && slot < PROCESSING_MATRIX_SIZE) {
-                allowedTagList.clearFluidTags(slot);
-            }
-        });
+            .addListener(new NetworkNodeFluidInventoryListener(this))
+            .addListener((handler, slot, reading) -> {
+                if (!reading && slot < PROCESSING_MATRIX_SIZE) {
+                    allowedTagList.clearFluidTags(slot);
+                }
+            });
     private final Set<ICraftingGridListener> craftingListeners = new HashSet<>();
     private final List<IFilter> filters = new ArrayList<>();
     private final CraftingContainer matrix = new CraftingContainer(craftingContainer, 3, 3);
@@ -139,39 +142,40 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
             return stack;
         }
     }
-        .addValidator(new ItemValidator(RSItems.PATTERN.get()))
-        .addListener(new NetworkNodeInventoryListener(this))
-        .addListener(((handler, slot, reading) -> {
-            ItemStack pattern = handler.getStackInSlot(slot);
+            .addValidator(new ItemValidator(RSItems.PATTERN.get()))
+            .addListener(new NetworkNodeInventoryListener(this))
+            .addListener(((handler, slot, reading) -> {
+                ItemStack pattern = handler.getStackInSlot(slot);
 
-            if (!reading && slot == 1 && !pattern.isEmpty()) {
-                boolean processing = PatternItem.isProcessing(pattern);
+                if (!reading && slot == 1 && !pattern.isEmpty()) {
+                    boolean processing = PatternItem.isProcessing(pattern);
 
-                if (processing) {
-                    for (int i = 0; i < PROCESSING_MATRIX_SIZE; ++i) {
-                        processingMatrix.setStackInSlot(i, PatternItem.getInputSlot(pattern, i));
-                        processingMatrixFluids.setFluid(i, PatternItem.getFluidInputSlot(pattern, i));
-                        processingMatrix.setStackInSlot(PROCESSING_MATRIX_SIZE + i, PatternItem.getOutputSlot(pattern, i));
-                        processingMatrixFluids.setFluid(PROCESSING_MATRIX_SIZE + i, PatternItem.getFluidOutputSlot(pattern, i));
+                    if (processing) {
+                        for (int i = 0; i < PROCESSING_MATRIX_SIZE; ++i) {
+                            processingMatrix.setStackInSlot(i, PatternItem.getInputSlot(pattern, i));
+                            processingMatrixFluids.setFluid(i, PatternItem.getFluidInputSlot(pattern, i));
+                            processingMatrix.setStackInSlot(PROCESSING_MATRIX_SIZE + i, PatternItem.getOutputSlot(pattern, i));
+                            processingMatrixFluids.setFluid(PROCESSING_MATRIX_SIZE + i, PatternItem.getFluidOutputSlot(pattern, i));
+                        }
+
+                        AllowedTagList allowedTagsFromPattern = PatternItem.getAllowedTags(pattern);
+
+                        if (allowedTagsFromPattern != null) {
+                            allowedTagList.setAllowedItemTags(allowedTagsFromPattern.getAllowedItemTags());
+                            allowedTagList.setAllowedFluidTags(allowedTagsFromPattern.getAllowedFluidTags());
+                        }
+                    } else {
+                        for (int i = 0; i < 9; ++i) {
+                            matrix.setItem(i, PatternItem.getInputSlot(pattern, i));
+                        }
                     }
 
-                    AllowedTagList allowedTagsFromPattern = PatternItem.getAllowedTags(pattern);
-
-                    if (allowedTagsFromPattern != null) {
-                        allowedTagList.setAllowedItemTags(allowedTagsFromPattern.getAllowedItemTags());
-                        allowedTagList.setAllowedFluidTags(allowedTagsFromPattern.getAllowedFluidTags());
-                    }
-                } else {
-                    for (int i = 0; i < 9; ++i) {
-                        matrix.setItem(i, PatternItem.getInputSlot(pattern, i));
-                    }
+                    setProcessingPattern(processing);
+                    markDirty();
                 }
-
-                setProcessingPattern(processing);
-                markDirty();
-            }
-        }));
+            }));
     private int sortingType = SORTING_TYPE_QUANTITY;
+    private String jewelSortingAttribute = JewelAttribute.ATTRIBUTES.get(0).id;
     private int searchBoxMode = SEARCH_BOX_MODE_NORMAL;
     private int size = SIZE_STRETCH;
     private int tabSelected = -1;
@@ -179,16 +183,22 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
     private boolean exactPattern = true;
     private boolean processingPattern = false;
     private int processingType = IType.ITEMS;
+
     public GridNetworkNode(Level level, BlockPos pos, GridType type) {
         super(level, pos);
 
         this.type = type;
+        if (type == GridType.JEWEL) {
+            sortingType = IGrid.SORTING_TYPE_JEWEL_ATTRIBUTE;
+        }
     }
 
     public static ResourceLocation getId(GridType type) {
         switch (type) {
             case NORMAL:
                 return ID;
+            case JEWEL:
+                return JEWEL_ID;
             case CRAFTING:
                 return CRAFTING_ID;
             case PATTERN:
@@ -220,6 +230,8 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
         switch (type) {
             case NORMAL:
                 return RS.SERVER_CONFIG.getGrid().getGridUsage();
+            case JEWEL:
+                return RS.SERVER_CONFIG.getGrid().getCraftingGridUsage();
             case CRAFTING:
                 return RS.SERVER_CONFIG.getGrid().getCraftingGridUsage();
             case PATTERN:
@@ -292,6 +304,8 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
     @Override
     public Component getTitle() {
         switch (type) {
+            case JEWEL:
+                return new TranslatableComponent("gui.refinedstorage.jewel_grid");
             case CRAFTING:
                 return new TranslatableComponent("gui.refinedstorage.crafting_grid");
             case PATTERN:
@@ -556,6 +570,20 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
     }
 
     @Override
+    public String getJewelAttributeSorting() {
+        return level.isClientSide ? GridBlockEntity.JEWEL_ATTRIBUTE.getValue() : jewelSortingAttribute;
+    }
+
+    public void setJewelAttributeSorting(String attribute) {
+        this.jewelSortingAttribute = attribute;
+    }
+
+    @Override
+    public void onJewelAttributeChanged(String attr) {
+        BlockEntitySynchronizationManager.setParameter(GridBlockEntity.JEWEL_ATTRIBUTE, attr);
+    }
+
+    @Override
     public int getSearchBoxMode() {
         return level.isClientSide ? GridBlockEntity.SEARCH_BOX_MODE.getValue() : searchBoxMode;
     }
@@ -715,6 +743,7 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
         tag.putInt(NBT_VIEW_TYPE, viewType);
         tag.putInt(NBT_SORTING_DIRECTION, sortingDirection);
         tag.putInt(NBT_SORTING_TYPE, sortingType);
+        tag.putString(NBT_JEWEL_ATTRIBUTE, jewelSortingAttribute);
         tag.putInt(NBT_SEARCH_BOX_MODE, searchBoxMode);
         tag.putInt(NBT_SIZE, size);
 
@@ -739,6 +768,10 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
 
         if (tag.contains(NBT_SORTING_TYPE)) {
             sortingType = tag.getInt(NBT_SORTING_TYPE);
+        }
+
+        if (tag.contains(NBT_JEWEL_ATTRIBUTE)) {
+            jewelSortingAttribute = tag.getString(NBT_JEWEL_ATTRIBUTE);
         }
 
         if (tag.contains(NBT_SEARCH_BOX_MODE)) {
@@ -773,12 +806,6 @@ public class GridNetworkNode extends NetworkNode implements INetworkAwareGrid, I
                 return new CombinedInvWrapper(filter);
         }
     }
-
-
-
-
-
-
 
 
 }

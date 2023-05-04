@@ -27,6 +27,8 @@ public class GridSortingTypeSideButton extends SideButton {
     protected void renderButtonIcon(PoseStack poseStack, int x, int y) {
         if (grid.getSortingType() == IGrid.SORTING_TYPE_LAST_MODIFIED) {
             screen.blit(poseStack, x, y, 48, 48, 16, 16);
+        } else if (grid.getSortingType() == IGrid.SORTING_TYPE_JEWEL_ATTRIBUTE) {
+            screen.blit(poseStack, x, y, 64, 48, 16, 16);
         } else {
             screen.blit(poseStack, x, y, grid.getSortingType() * 16, 32, 16, 16);
         }
@@ -35,25 +37,34 @@ public class GridSortingTypeSideButton extends SideButton {
     @Override
     public void onPress() {
         int type = grid.getSortingType();
+        var isJewel = grid.getGridType() == GridType.JEWEL;
 
-        if (type == IGrid.SORTING_TYPE_QUANTITY) {
-            type = IGrid.SORTING_TYPE_NAME;
-        } else if (type == IGrid.SORTING_TYPE_NAME) {
-            if (grid.getGridType() == GridType.FLUID) {
+        if (isJewel) {
+            if (type == IGrid.SORTING_TYPE_LAST_MODIFIED) {
+                type = IGrid.SORTING_TYPE_JEWEL_ATTRIBUTE;
+            } else {
                 type = IGrid.SORTING_TYPE_LAST_MODIFIED;
-            } else {
-                type = IGrid.SORTING_TYPE_ID;
             }
-        } else if (type == IGrid.SORTING_TYPE_ID) {
-            type = IGrid.SORTING_TYPE_LAST_MODIFIED;
-        } else if (type == IGrid.SORTING_TYPE_LAST_MODIFIED) {
-            if (grid.getGridType() == GridType.FLUID || !InventoryTweaksIntegration.isLoaded()) {
+        } else {
+            if (type == IGrid.SORTING_TYPE_QUANTITY) {
+                type = IGrid.SORTING_TYPE_NAME;
+            } else if (type == IGrid.SORTING_TYPE_NAME) {
+                if (grid.getGridType() == GridType.FLUID) {
+                    type = IGrid.SORTING_TYPE_LAST_MODIFIED;
+                } else {
+                    type = IGrid.SORTING_TYPE_ID;
+                }
+            } else if (type == IGrid.SORTING_TYPE_ID) {
+                type = IGrid.SORTING_TYPE_LAST_MODIFIED;
+            } else if (type == IGrid.SORTING_TYPE_LAST_MODIFIED) {
+                if (grid.getGridType() == GridType.FLUID || !InventoryTweaksIntegration.isLoaded()) {
+                    type = IGrid.SORTING_TYPE_QUANTITY;
+                } else {
+                    type = IGrid.SORTING_TYPE_INVENTORYTWEAKS;
+                }
+            } else {
                 type = IGrid.SORTING_TYPE_QUANTITY;
-            } else {
-                type = IGrid.SORTING_TYPE_INVENTORYTWEAKS;
             }
-        } else if (type == IGrid.SORTING_TYPE_INVENTORYTWEAKS) {
-            type = IGrid.SORTING_TYPE_QUANTITY;
         }
 
         grid.onSortingTypeChanged(type);

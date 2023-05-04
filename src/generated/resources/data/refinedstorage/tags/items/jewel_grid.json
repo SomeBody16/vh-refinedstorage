@@ -1,0 +1,21 @@
+{
+    "replace": false,
+    "values": [
+        "refinedstorage:white_jewel_grid",
+        "refinedstorage:orange_jewel_grid",
+        "refinedstorage:magenta_jewel_grid",
+        "refinedstorage:jewel_grid",
+        "refinedstorage:yellow_jewel_grid",
+        "refinedstorage:lime_jewel_grid",
+        "refinedstorage:pink_jewel_grid",
+        "refinedstorage:gray_jewel_grid",
+        "refinedstorage:light_gray_jewel_grid",
+        "refinedstorage:cyan_jewel_grid",
+        "refinedstorage:purple_jewel_grid",
+        "refinedstorage:blue_jewel_grid",
+        "refinedstorage:brown_jewel_grid",
+        "refinedstorage:green_jewel_grid",
+        "refinedstorage:red_jewel_grid",
+        "refinedstorage:black_jewel_grid"
+    ]
+}
