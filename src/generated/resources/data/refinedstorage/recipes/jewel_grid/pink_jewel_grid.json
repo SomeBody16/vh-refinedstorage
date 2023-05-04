@@ -1,17 +1,17 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "ingredients": [
-    {
-      "item": "refinedstorage:pink_grid"
-    },
-    {
-      "item": "refinedstorage:advanced_processor"
-    },
-    {
-      "item": "the_vault:gemstone"
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "refinedstorage:pink_grid"
+        },
+        {
+            "item": "refinedstorage:advanced_processor"
+        },
+        {
+            "item": "the_vault:gemstone"
+        }
+    ],
+    "result": {
+        "item": "refinedstorage:pink_jewel_grid"
     }
-  ],
-  "result": {
-    "item": "refinedstorage:pink_jewel_grid"
-  }
 }
